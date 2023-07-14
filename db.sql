@@ -26,7 +26,7 @@ CREATE TABLE
         id BIGINT(20) UNSIGNED AUTO_INCREMENT PRIMARY KEY,
         id_bodega BIGINT(20) UNSIGNED NOT NULL ,
         id_producto BIGINT(20) UNSIGNED NOT NULL ,
-        cantidad INT(11),
+        id_producto INT(11),
         created_by BIGINT(20) UNSIGNED,
         update_by BIGINT(20) UNSIGNED,
         created_at TIMESTAMP NULL,
@@ -251,3 +251,47 @@ INSERT INTO `users` (`id`, `nombre`, `email`, `email_verified_at`, `estado`, `cr
 (20, 'juan9', 'juan 9@hotmail.com', NULL, 1, NULL, NULL, NULL, '12345', NULL, NULL, NULL);
 
 SELECT * FROM users;
+SELECT p.id, p.nombre, SUM(i.cantidad) AS Total
+FROM productos p
+INNER JOIN inventarios i ON p.id = i.id
+GROUP BY p.id, p.nombre
+ORDER BY Total DESC;
+
+SELECT p.id, p.nombre, SUM(i.cantidad) AS Total
+    FROM productos p
+    INNER JOIN (
+        SELECT id, SUM(cantidad) AS cantidad
+        FROM inventarios
+        GROUP BY id
+    ) i ON p.id = i.id
+    GROUP BY p.id, p.nombre
+    ORDER BY Total DESC;
+
+SELECT p.id, p.nombre, (SELECT SUM(cantidad) FROM inventarios WHERE id = p.id) AS Total
+FROM productos p
+ORDER BY Total DESC;
+SELECT SUM(cantidad) AS Total
+FROM inventarios;
+SELECT p.id, p.nombre
+      FROM productos p
+      INNER JOIN inventarios i ON p.id = i.id
+      GROUP BY p.id, p.nombre
+      ORDER BY SUM(i.cantidad) DESC;
+
+SELECT p.id, p.nombre, (SELECT SUM(cantidad) FROM inventarios) AS Total
+    FROM productos p
+    INNER JOIN inventarios i ON p.id = i.id
+    GROUP BY p.id, p.nombre
+    ORDER BY Total DESC;
+
+SELECT p.id, p.nombre, i.cantidad
+    FROM productos p
+    INNER JOIN inventarios i ON p.id = i.id
+
+    UNION ALL
+
+    SELECT NULL, NULL, SUM(cantidad)
+    FROM inventarios
+
+    ORDER BY id ASC, cantidad DESC
+      
